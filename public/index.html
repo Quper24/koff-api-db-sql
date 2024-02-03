@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .form-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f2f2f2;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .form-container input[type="text"],
+    .form-container input[type="number"],
+    .form-container input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .form-container input[type="file"] {
+      margin-bottom: 10px;
+    }
+
+    .form-container button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <div class="form-container">
+    <form action="/api/products" method="POST" enctype="multipart/form-data">
+
+      <label for="category">Категория:</label>
+      <input type="text" name="category" id="category" required>
+
+      <label for="name">Название товара:</label>
+      <input type="text" name="name" id="name" required>
+
+      <label for="price">Стоимость:</label>
+      <input type="number" name="price" id="price">
+
+      <label for="images">Фото (JPEG или PNG):</label>
+      <input type="file" name="images" id="images"
+        accept="image/jpeg, image/png" multiple required>
+
+      <fieldset>
+        <legend>Общие характеристики</legend>
+
+        <div class="characteristics">
+          <input type="text" placeholder="Имя характеристики" name="field">
+          <input type="text" placeholder="Значение характеристики" name="value">
+        </div>
+
+        <button id="add" type="button">Добавить характеристику</button>
+      </fieldset>
+
+      <button type="submit">Добавить товар</button>
+    </form>
+
+    <input id="password" type="password" placeholder="Пароль ">
+  </div>
+
+  <script>
+    const password = document.getElementById('password');
+    const characteristicsContainer = document.querySelector('.characteristics');
+    const addButton = document.getElementById('add');
+    addButton.addEventListener('click', () => {
+      const newCharacteristic = characteristicsContainer.cloneNode(true);
+      const inputs = newCharacteristic.querySelectorAll('input');
+      inputs.forEach((input) => {
+        input.value = '';
+      })
+      addButton.before(newCharacteristic);
+    });
+
+
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const characteristics = Array.from(document.querySelectorAll('.characteristics'));
+
+      const characteristicsData = characteristics.map((characteristic) => {
+        const field = characteristic.querySelector('input[name="field"]').value;
+        const value = characteristic.querySelector('input[name="value"]').value;
+        return [field, value];
+      });
+
+      console.log(characteristicsData)
+
+      formData.append('characteristics', JSON.stringify(characteristicsData));
+
+      fetch(form.action, {
+        method: form.method,
+        body: formData,
+        headers: {
+          'Authorization': 'Bearer ' + password.value,
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle response data
+        })
+        .catch(error => {
+          // Handle error
+        });
+    });
+
+  </script>
+</body>
+
+</html>
